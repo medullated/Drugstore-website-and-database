@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Изменение сотрудника - VIVA PHARMACY</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="mypx_main">
+        <h1>Изменение сотрудника</h1>
+        <form action="{{ url_for('change_employee', id=employee[0]) }}" method="post">
+            <p><strong>Логин:</strong> {{ employee[1] }}</p>
+            <input type="hidden" name="login" value="{{ employee[1] }}">
+
+            <label for="password">Новый пароль (оставьте пустым, если не хотите менять):</label>
+            <input type="password" id="password" name="password" maxlength="24"
+                   oninput="validateLatinAndNumbers(this)">
+
+            <h2>Права доступа</h2>
+            {% for right in accessrights %}
+            <label>
+                <input type="checkbox" name="accessrights" value="{{ right[0] }}" 
+                       {% if right[0] in selected_accessrights %}checked{% endif %}>
+                {{ right[1] }}
+            </label><br>
+            {% endfor %}
+
+            <button type="submit">Сохранить изменения</button>
+        </form>
+        
+        <a href="{{ url_for('employees') }}"><button class="pxfrom_back">Назад</button></a>
+    </div>
+
+    <script>
+        // Валидация для латинских букв и цифр
+        function validateLatinAndNumbers(input) {
+            // Удаляем все символы, кроме латинских букв и цифр
+            input.value = input.value.replace(/[^a-zA-Z0-9]/g, '');
+        }
+    </script>
+</body>
+</html>

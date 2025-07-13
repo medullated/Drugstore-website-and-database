@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Чеки - VIVA PHARMACY</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        th {
+            cursor: pointer;
+            position: relative;
+            color: #ED4C4C;
+        }
+        th:hover {
+            background-color: #f5f5f5;
+        }
+        th.sorted-asc::after {
+            content: "↑";
+            margin-left: 5px;
+        }
+        th.sorted-desc::after {
+            content: "↓";
+            margin-left: 5px;
+        }
+        .hidden {
+            display: none;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        .error-message {
+            color: red;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="mypx_main">
+        <h1>Чеки, ожидающие подтверждения</h1>
+        <div id="errorContainer" class="error-message"></div>
+        
+        <div class="tables">
+            <table id="billsTable">
+                <thead>
+                    <tr>
+                        <th onclick="sortTable(0, 'number')">ID Чека</th>
+                        <th onclick="sortTable(1, 'number')">ID Клиента</th>
+                        <th onclick="sortTable(2, 'string')">Статус</th>
+                        <th onclick="sortTable(3, 'string')">Препараты</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bill in bills %}
+                        {% if bill[3] and bill[3]|trim %}  <!-- Проверка, что bill[3] не пустое -->
+                        <tr>
+                            <td data-sort="{{ bill[0] }}">{{ bill[0] }}</td>
+                            <td data-sort="{{ bill[1] }}">{{ bill[1] }}</td>
+                            <td data-sort="{{ '1' if bill[2] else '0' }}">
+                                {{ 'Оплачен' if bill[2] else 'Не оплачен' }}
+                            </td>
+                            <td>{{ bill[3] | safe }}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <form action="{{ url_for('approve_bill', bill_id=bill[0]) }}" method="post">
+                                        <button type="submit">Подтвердить</button>
+                                    </form>
+                                    <button onclick="togglePrescriptions({{ bill[1] }}, this)">Рецепты</button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <table id="prescriptionsTable" class="hidden">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Клиент</th>
+                        <th>Статус</th>
+                        <th>Препарат</th>
+                        <th>Количество</th>
+                    </tr>
+                </thead>
+                <tbody id="prescriptionsBody"></tbody>
+            </table>
+        </div>
+
+        <a href="{{ url_for('profile') }}"><button class="pxfrom_back">Назад</button></a>
+    </div>
+
+    <script>
+        // Сортировка таблицы
+        let lastSortedColumn = -1;
+        let sortDirection = 1;
+        let currentPrescriptionsClientId = null;
+
+        function sortTable(columnIndex, dataType) {
+            const table = document.getElementById("billsTable");
+            const tbody = table.querySelector("tbody");
+            const rows = Array.from(tbody.querySelectorAll("tr"));
+            const headers = table.querySelectorAll("th");
+            
+            headers.forEach(h => h.classList.remove("sorted-asc", "sorted-desc"));
+            
+            if (lastSortedColumn === columnIndex) {
+                sortDirection *= -1;
+            } else {
+                sortDirection = 1;
+                lastSortedColumn = columnIndex;
+            }
+            
+            headers[columnIndex].classList.add(sortDirection === 1 ? "sorted-asc" : "sorted-desc");
+            
+            rows.sort((a, b) => {
+                const aVal = a.querySelectorAll("td")[columnIndex].getAttribute("data-sort");
+                const bVal = b.querySelectorAll("td")[columnIndex].getAttribute("data-sort");
+                
+                let compareA = dataType === 'number' ? parseFloat(aVal) : aVal.toLowerCase();
+                let compareB = dataType === 'number' ? parseFloat(bVal) : bVal.toLowerCase();
+                
+                return (compareA > compareB ? 1 : -1) * sortDirection;
+            });
+            
+            tbody.innerHTML = '';
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        // Функция для показа/скрытия рецептов
+        async function togglePrescriptions(clientId, button) {
+            const prescriptionsTable = document.getElementById("prescriptionsTable");
+            const prescriptionsBody = document.getElementById("prescriptionsBody");
+            const errorContainer = document.getElementById("errorContainer");
+            
+            // Если таблица уже открыта для этого клиента - скрываем
+            if (currentPrescriptionsClientId === clientId) {
+                prescriptionsTable.classList.add("hidden");
+                currentPrescriptionsClientId = null;
+                button.textContent = "Рецепты";
+                return;
+            }
+            
+            // Загружаем рецепты
+            try {
+                const response = await fetch(`/show_px/${clientId}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
+                });
+                
+                if (!response.ok) throw new Error(`Ошибка HTTP: ${response.status}`);
+                
+                const data = await response.json();
+                
+                // Заполняем таблицу данными
+                prescriptionsBody.innerHTML = data.map(px => `
+                    <tr>
+                        <td>${px[0]}</td>
+                        <td>${px[1]}</td>
+                        <td>${px[2] ? 'Активен' : 'Не активен'}</td>
+                        <td>${px[4]}</td>
+                        <td>${px[5]}</td>
+                    </tr>
+                `).join('');
+                
+                // Показываем таблицу
+                prescriptionsTable.classList.remove("hidden");
+                currentPrescriptionsClientId = clientId;
+                button.textContent = "Скрыть";
+                errorContainer.textContent = '';
+                
+            } catch (error) {
+                console.error("Ошибка загрузки рецептов:", error);
+                errorContainer.textContent = `Ошибка при загрузке рецептов: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

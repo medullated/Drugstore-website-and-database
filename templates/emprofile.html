@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Личный кабинет сотрудника - VIVA PHARMACY</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="profile_main">
+        <h1>Добро пожаловать, {{ username }}!</h1>
+        <div class="profile_buttons">
+            {% if 'unvbills_b' in rights %}
+            <a href="{{ url_for('unvbills') }}"><button class="unvbills_b">Управление чеками</button></a>
+            {% endif %}
+            
+            {% if 'unvpx_b' in rights %}
+            <a href="{{ url_for('unvpx') }}"><button class="unvpx_b">Управление рецептами</button></a>
+            {% endif %}
+
+            {% if 'activesubs_b' in rights %}
+            <a href="{{ url_for('activesubs') }}"><button class="activesubs_b">Управление активными веществами</button></a>
+            {% endif %}
+
+            {% if 'farmgroups_b' in rights %}
+            <a href="{{ url_for('farmgroups') }}"><button class="farmgroups_b">Управление фармакологическими группами</button></a>
+            {% endif %}
+
+            {% if 'drugs_b' in rights %}
+            <a href="{{ url_for('drugs') }}"><button class="drugs_b">Управление препаратами</button></a>
+            {% endif %}
+
+            <a href="{{ url_for('index') }}"><button>Главная</button></a>
+        </div>
+    </div>
+</body>
+</html>

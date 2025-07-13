@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Сотрудники - VIVA PHARMACY</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="mypx_main">
+        <h1>Управление сотрудниками</h1>
+
+        <!-- Поле для поиска сотрудников -->
+        <div class="search-form">
+            <input type="text" id="searchInput" placeholder="Поиск по логину" onkeyup="searchEmployees()">
+        </div>
+
+        <!-- Форма добавления нового сотрудника -->
+        <form action="{{ url_for('add_employee') }}" method="post">
+            <input type="text" name="login" placeholder="Логин" required 
+                   oninput="validateLatinAndNumbers(this)" maxlength="24">
+            <input type="password" name="password" placeholder="Пароль" required 
+                   oninput="validateLatinAndNumbers(this)" maxlength="24">
+            <button type="submit">Добавить</button>
+        </form>
+
+        <a href="{{ url_for('adminprofile') }}"><button class="pxfrom_back">Назад</button></a>
+
+        <table id="employeesTable">
+            <tr>
+                <th>Логин</th>
+                <th>Права доступа</th>
+                <th colspan="2">Действия</th>
+            </tr>
+            {% for employee in employees %}
+            <tr class="employee-row">
+                <td class="employee-login">{{ employee[1] }}</td>
+                <td>{{ employee[2] }}</td> <!-- Права доступа -->
+                <td>
+                    <form action="{{ url_for('change_employee', id=employee[0]) }}" method="get">
+                        <button type="submit">Изменить</button>
+                    </form>
+                </td>
+                <td>
+                    <form action="{{ url_for('delete_employee', id=employee[0]) }}" method="post">
+                        <button type="submit">Удалить</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <script>
+        function searchEmployees() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toUpperCase();
+            const rows = document.getElementsByClassName('employee-row');
+            
+            for (let i = 0; i < rows.length; i++) {
+                const loginCell = rows[i].getElementsByClassName('employee-login')[0];
+                const txtValue = loginCell.textContent || loginCell.innerText;
+                
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
+        }
+
+        // Валидация для латинских букв и цифр
+        function validateLatinAndNumbers(input) {
+            // Удаляем все символы, кроме латинских букв и цифр
+            input.value = input.value.replace(/[^a-zA-Z0-9]/g, '');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Препараты - VIVA PHARMACY</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        .hidden {
+            display: none;
+        }
+        .error-message {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="mypx_main">
+        <h1>Управление препаратами</h1>
+        
+        <!-- Поле для поиска препаратов -->
+        <div class="search-form">
+            <input type="text" id="searchInput" placeholder="Поиск по названию..." onkeyup="searchDrugs()">
+        </div>
+        
+        <form action="{{ url_for('add_drug') }}" method="post" onsubmit="return validateAmount()">
+            <input type="text" id="name" name="name" placeholder="Название препарата" required>
+            <input type="text" id="description" name="description" placeholder="Описание" required>
+            <input type="text" id="pi" name="pi" placeholder="Применение" required>
+            <input type="date" id="expiry_date" name="expiry_date" placeholder="Срок годности" required>
+            
+            <select id="prescription" name="prescription" required>
+                <option value="" disabled selected>Выберите тип</option>
+                <option value="true">Рецептурный</option>
+                <option value="false">Безрецептурный</option>
+            </select>
+            
+            <input type="number" id="price" name="price" placeholder="Цена" min="0" step="0.01" required>
+            
+            <div>
+                <input type="number" id="amount" name="amount" placeholder="Количество" min="1" max="100" required
+                       oninput="validateAmountInput()">
+                <div id="amountError" class="error-message">Введите число от 1 до 100</div>
+            </div>
+
+            <button type="submit">Добавить</button>  
+        </form>
+        
+        <a href="{{ url_for('profile') }}"><button class="pxfrom_back">Назад</button></a>
+        
+        <table id="drugsTable">
+            <tr>
+                <th>Название</th>
+                <th>Описание</th>
+                <th>Применение</th>
+                <th>Срок годности</th>
+                <th>Рецептурный</th>
+                <th>Цена</th>
+                <th>Количество</th>
+                <th>Фарм. группы</th>
+                <th>Активные вещества</th>
+                <th colspan="2">Действия</th>
+            </tr>
+            {% for drug in drugs %}
+            <tr class="drug-row">
+                <td class="drug-name">{{ drug[1] }}</td>
+                <td>{{ drug[2] }}</td>
+                <td>{{ drug[3] }}</td>
+                <td>{{ drug[4] }}</td>
+                <td>{{ "Да" if drug[5] == true else "Нет" }}</td>
+                <td>{{ drug[6] }}</td>
+                <td>{{ drug[7] }}</td>
+                <td>{{ drug[8] }}</td> <!-- Фармакологические группы -->
+                <td>{{ drug[9] }}</td> <!-- Активные вещества -->
+                <td>
+                    <form action="{{ url_for('show_change_drug_form', id=drug[0]) }}" method="get">
+                        <button type="submit">Изменить</button>
+                    </form>
+                </td>
+                <td>
+                    <form action="{{ url_for('delete_drug', id=drug[0]) }}" method="post">
+                        <button type="submit">Удалить</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <script>
+        function searchDrugs() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toUpperCase();
+            const rows = document.getElementsByClassName('drug-row');
+            
+            for (let i = 0; i < rows.length; i++) {
+                const nameCell = rows[i].getElementsByClassName('drug-name')[0];
+                const txtValue = nameCell.textContent || nameCell.innerText;
+                
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
+        }
+
+        function validateAmountInput() {
+            const amountInput = document.getElementById('amount');
+            const errorElement = document.getElementById('amountError');
+            const value = parseInt(amountInput.value);
+            
+            if (isNaN(value) || value < 1 || value > 100) {
+                errorElement.style.display = 'block';
+                return false;
+            } else {
+                errorElement.style.display = 'none';
+                return true;
+            }
+        }
+
+        function validateAmount() {
+            const isValid = validateAmountInput();
+            if (!isValid) {
+                const amountInput = document.getElementById('amount');
+                amountInput.focus();
+            }
+            return isValid;
+        }
+    </script>
+</body>
+</html>

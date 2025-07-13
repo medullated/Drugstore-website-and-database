@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Платежные данные - VIVA PHARMACY</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="editprofile_main">
+        <h1>Редактирование платежных данных</h1>
+        <form action="{{ url_for('pay_info') }}" method="POST" onsubmit="return validateForm()">
+            <label for="number">Номер телефона:</label>
+            <input type="text" name="number" id="number" value="{{ number }}" placeholder="Новый телефон" maxlength="20" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+
+            <button type="submit">Сохранить изменения</button>
+        </form>
+        <a href="{{ url_for('profile') }}"><button class="pxfrom_back">Назад</button></a>
+    </div>
+
+</body>
+</html>

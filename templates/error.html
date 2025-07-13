@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ошибка - VIVA PHARMACY</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="profile_main">
+        <h1>Ошибка! Что-то пошло не так...</h1>
+        <p class="error-message">{{ error_message }}</p>
+        
+        <div class="profile_buttons">
+            <button onclick="window.history.back();" class="pxform_b">Назад</button>
+            <a href="{{ url_for('index') }}"><button>Главная</button></a>
+        </div>
+    </div>
+</body>
+</html>

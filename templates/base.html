@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}VIVA PHARMACY{% endblock %}</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll(".add_to_cart").forEach(button => {
+                button.addEventListener("click", function() {
+                    let drugId = parseInt(this.dataset.drugId); // Преобразование в число
+                    
+                    if (isNaN(drugId)) {
+                        alert("Ошибка: Некорректный идентификатор препарата.");
+                        return;
+                    }
+
+                    fetch("/add_to_cart", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ drug_id: drugId })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert("Препарат добавлен в корзину!");
+                        } else {
+                            alert("Ошибка: " + data.error);
+                        }
+                    })
+                    .catch(error => console.error("Ошибка:", error));
+                });
+            });
+        });
+
+        </script>
+        
+    <header class="header">
+        <a href="/"><div class="logo">
+            <img src="{{ url_for('static', filename='logo_t.svg') }}" alt="Логотип" class="logo_img">
+        </div></a>
+        <div><form action="{{ url_for('search') }}" method="GET" class="search_form">
+            <input type="text" class="search_input" name="query" placeholder="Поиск препаратов..." required>
+            <button type="submit"  class="search_b"><i class="material-icons">search</i></button>
+        </form></div>
+        
+        <div class="header_buttons">
+
+            {% if session.username %}
+                {% if session.admin %}
+                    <a href="{{ url_for('adminprofile') }}"><button class="personal_b">Личный кабинет</button></a>
+                {% elif session.employee %}
+                    <a href="{{ url_for('emprofile') }}"><button class="personal_b">Личный кабинет</button></a>
+                {% else %}
+                    <a href="{{ url_for('myshopcart') }}"><button class="myshopcart_b">Корзина</button></a>
+                    <a href="{{ url_for('profile') }}"><button class="personal_b">Личный кабинет</button></a>
+                    
+                {% endif %}
+                <a href="{{ url_for('logout') }}"><button class="logout_b">Выйти</button></a>
+
+            {% elif session.admin %}
+                <a href="{{ url_for('adminprofile') }}"><button class="personal_b">Личный кабинет</button></a>
+                <a href="{{ url_for('logout') }}"><button class="logout_b">Выйти</button></a>
+            {% elif session.employee %}
+                <a href="{{ url_for('emprofile') }}"><button class="personal_b">Личный кабинет</button></a>
+                <a href="{{ url_for('logout') }}"><button class="logout_b">Выйти</button></a>
+
+            {% else %}
+                <a href="{{ url_for('register') }}"><button class="signin_b">Регистрация</button></a>
+                <a href="{{ url_for('login') }}"><button class="login_b">Войти</button></a>
+            {% endif %}
+        </div>
+        
+    </header>
+    <main class="mainbody">
+        <div class="sidebar">
+            <ul>
+                {% for group in groups %}
+                    <li><a href="{{ url_for('group', group_id=group[0]) }}">{{ group[1] }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="content">
+            <div class="card_c">
+                {% for drug in drugs %}
+                    <div class="card">
+                        <div class="card_info">
+                            <h3>{{ drug[1] }}</h3>
+                            <p>{{ drug[2] }}</p>
+                            <p>{{drug[3]}}</p>
+                            {% if drug[5] %}
+                            <p class="px">Рецептурный препарат.</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="price_block">
+                            <h4>{{ drug[6] }} &#8381;</h4>
+                            <button class="add_to_cart" data-drug-id="{{ drug[0] }}">
+                                <i class="material-icons">add_shopping_cart</i>
+                            </button>
+                            
+                        </div>
+                        
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+</body>
+</html>

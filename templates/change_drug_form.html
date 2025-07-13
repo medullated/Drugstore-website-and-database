@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Изменение препарата - VIVA PHARMACY</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="pxform_main">
+        <h1>Изменение препарата: {{ drug[1] }}</h1>
+        <form action="{{ url_for('change_drug', id=drug[0]) }}" method="post">
+            <!-- Основные поля препарата -->
+            <label for="name">Название:</label>
+            <input type="text" id="name" name="name" value="{{ drug[1] }}" required>
+
+            <label for="description">Описание:</label>
+            <textarea id="description" name="description" rows="4" cols="50" required>{{ drug[2] }}</textarea>
+
+            <label for="pi">Применение:</label>
+            <textarea id="pi" name="pi" rows="4" cols="50" required>{{ drug[3] }}</textarea>
+
+            <label for="expiry_date">Срок годности:</label>
+            <input type="date" id="expiry_date" name="expiry_date" value="{{ drug[4] }}" required>
+
+            <label for="prescription">Рецептурный:</label>
+            <select id="prescription" name="prescription" required>
+                <option value="true" {% if drug[5] %}selected{% endif %}>Да</option>
+                <option value="false" {% if not drug[5] %}selected{% endif %}>Нет</option>
+            </select>
+
+            <label for="price">Цена:</label>
+            <input type="number" id="price" name="price" value="{{ drug[6] }}" required>
+
+            <label for="amount">Количество:</label>
+            <input type="number" id="amount" name="amount" value="{{ drug[7] }}" required>
+
+            <!-- Чекбоксы для фармгрупп -->
+            <label>Фармгруппы:</label>
+            <div>
+                {% for group in farmgroups %}
+                <label>
+                    <input type="checkbox" name="farmgroups" value="{{ group[0] }}"
+                           {% if group[0] in selected_farmgroups %}checked{% endif %}>
+                    {{ group[1] }}
+                </label><br>
+                {% endfor %}
+            </div>
+
+            <!-- Чекбоксы для активных веществ -->
+            <label>Активные вещества:</label>
+            <div>
+                {% for sub in activesubs %}
+                <label>
+                    <input type="checkbox" name="activesubs" value="{{ sub[0] }}"
+                           {% if sub[0] in selected_activesubs %}checked{% endif %}>
+                    {{ sub[1] }}
+                </label><br>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="pxform_back">Сохранить изменения</button>
+        </form>
+        <a href="{{ url_for('drugs') }}"><button class="pxfrom_back">Назад</button></a>
+    </div>
+</body>
+</html>

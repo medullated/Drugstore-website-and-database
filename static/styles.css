@@ -1,0 +1,324 @@
+html {
+    min-height: 100%;
+    position: relative;
+    font-family: "Jura", serif;
+    font-style: normal;
+}
+@counter-style marker-font {
+	system: cyclic;
+	symbols: "chevron_right";
+	suffix: "";
+}
+
+body {
+    background: rgb(255, 255, 255);
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: "Jura", serif;
+}
+
+.header {
+    height: 60px;
+    background: whitesmoke;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 5px;
+}
+
+.logo {
+    display: flex;
+    align-items: left;
+}
+
+
+
+.logo_img {
+    height: 60px; /* Высота логотипа */
+    width: 240px;  
+}
+
+.header_buttons {
+    display: flex;
+    gap: 10px; /* Расстояние между кнопками */
+}
+
+body button{
+    background: #ffffff;
+    color: #ED4C4C;
+    font-family: "Jura", serif;
+    font-weight: bolder;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #b8b8b8;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 20px;
+    transition: background-color 0.2s linear, color 0.2s linear;
+}
+body input {
+    border-radius: 20px;
+    border-style: solid;
+    border-width: 1px;
+    font-size: 16px;
+    padding: 10px 20px;
+    border-color: #b8b8b8;
+}
+
+body button:hover{
+    color: white;
+    background-color: #ED4C4C;
+    
+}
+
+.mainbody {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+}
+
+.sidebar {
+    margin-right: 2px;
+    background: whitesmoke;
+    width: fit-content;
+}
+a:link, a:visited{
+    text-decoration: none;
+    color: black;
+    transition: background-color 0.2s linear, color 0.2s linear;
+}
+a:hover{
+    color: #ED4C4C;
+}
+
+ul {
+    list-style-type: marker-font;
+    padding-left: 25px;
+    padding-right: 25px;
+    line-height: 130%;
+}
+
+li::marker {
+    font-family: 'Material Icons';
+
+}
+.price_block {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+.add_to_cart {
+    font-family: 'Material Icons';
+    symbols: 'shopping_bag';
+    system: cyclic;
+    height: min-content;
+    background-color: transparent;
+    border: none;
+    color: #555;
+    transition: background-color 0.2s linear, color 0.1s linear;
+}
+.add_to_cart:hover {
+    color: #ED4C4C;
+    background-color: transparent;
+    
+}
+h4 {
+    font-weight: bolder;
+    font-size: larger;
+    color: #ED4C4C;
+}
+.content {
+    width: 100%;
+    background: whitesmoke;
+}
+
+.card_c {
+    padding-top: 20px;
+    padding-left: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+
+.card {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    width: 200px;
+    height: 230px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.px {
+    color: #ED4C4C;
+    font-weight: bolder;
+}
+.card h3 {
+    margin: 0 0 10px;
+    font-size: 18px;
+}
+
+.card p {
+    margin: 0;
+    font-size: 14px;
+    color: #555;
+}
+
+.log_main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 500px;
+    padding-top: 100px;
+}
+
+.log_container {
+    height: 500px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 20px; /* Устанавливаем одинаковый промежуток между всеми элементами */
+}
+
+.log_container form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Устанавливаем одинаковый промежуток между элементами формы */
+    margin-bottom: 0; /* Убираем отступ внизу */
+}
+
+.checkbox_container {
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Между чекбоксом и меткой */
+}
+
+.profile_main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+.profile_buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 10px;
+}
+.profile_buttons button {
+    width: 320px;
+}
+
+.mypx_main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+    text-align: center;
+    
+}
+
+.mypx_main table {
+    table-layout: fixed;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    text-align: center;
+    border-color: #b8b8b8;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 20px;
+}
+.mypx_main th, ts {
+    width: 200px;
+}
+
+.editprofile_main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+.editprofile_main form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 10px;
+}
+.pxform_main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+}
+.pxform_main form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 10px;
+}
+.pxfrom_back, .pay_bill_b {
+    width: 240px;
+}
+.tables {
+    display: inline-block;
+    gap: 10px;
+
+}
+.tables button {
+    margin: 5px;
+    padding: 5px;
+    width: 130px;
+    text-align: center;
+}
+.description {
+    height: 300px;
+    width: 200px;
+    
+}
+textarea {
+    padding: 10px; /* Внутренние отступы */
+    font-family: inherit; /* Наследование шрифта */
+    font-size: inherit;
+    border: 1px solid #ccc; /* Граница */
+    border-radius: 20px; /* Закругленные углы */
+    border-color: #b8b8b8;
+    resize: vertical; /* Разрешить изменение размера только по вертикали */
+}
+select {
+    border-radius: 20px;
+    text-align: center;
+    font-family: inherit;
+    font-size: inherit;
+    padding: 10px;
+    color: #ED4C4C;
+    font-weight: bolder;
+
+}
+
+.search_form {
+    display: flex;
+    height: 40px;
+    gap: 10px;
+}
+
+.add_drug_container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-items: center;
+}

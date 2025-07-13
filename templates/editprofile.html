@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактировать профиль - VIVA PHARMACY</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="editprofile_main">
+        <h1>Редактирование профиля</h1>
+        <form action="{{ url_for('editprofile') }}" method="POST" onsubmit="return validateForm()">
+            <label for="name">Имя:</label>
+            <input type="text" name="name" id="name" value="{{ name }}" placeholder="Новое имя" oninput="validateName(this)" maxlength="24">
+
+            <label for="surname">Фамилия:</label>
+            <input type="text" name="surname" id="surname" value="{{ surname }}" placeholder="Новая фамилия" oninput="validateName(this)" maxlength="24">
+
+            <label for="patronymic">Отчество:</label>
+            <input type="text" name="patronymic" id="patronymic" value="{{ patronymic }}" placeholder="Новое отчество" oninput="validateName(this)" maxlength="24">
+
+            <label for="password">Пароль:</label>
+            <input type="password" name="password" id="password" placeholder="Новый пароль" maxlength="24">
+
+            <label for="birth_date">Дата рождения:</label>
+            <input type="date" name="birth_date" id="birth_date" value="{{ birth_date }}" placeholder="Новая дата рождения" max="{{ today }}">
+
+            <button type="submit">Сохранить изменения</button>
+        </form>
+        <a href="{{ url_for('profile') }}"><button class="pxfrom_back">Назад</button></a>
+    </div>
+
+    <script>
+        // Устанавливаем максимальную дату (сегодня) для поля даты рождения
+        document.getElementById('birth_date').max = new Date().toISOString().split('T')[0];
+        
+        // Валидация имени, фамилии, отчества (только буквы)
+        // Валидация имени, фамилии, отчества (только буквы, без пробелов)
+        function validateName(input) {
+            // Удаляем всё, кроме букв (включая пробелы)
+            input.value = input.value.replace(/[^a-zA-Zа-яА-ЯёЁ]/g, '');
+            
+            // Делаем первую букву заглавной
+            if (input.value.length > 0) {
+                input.value = input.value[0].toUpperCase() + input.value.slice(1).toLowerCase();
+            }
+        }
+
+        
+        // Проверка возраста (минимум 18 лет)
+        function validateAge() {
+            const birthDate = new Date(document.getElementById('birth_date').value);
+            if (!birthDate) return true; // если дата не выбрана, пропускаем
+            
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            
+            if (age < 18) {
+                alert('Вам должно быть не менее 18 лет');
+                return false;
+            }
+            return true;
+        }
+        
+        // Общая проверка формы перед отправкой
+        function validateForm() {
+            return validateAge();
+        }
+    </script>
+</body>
+</html>

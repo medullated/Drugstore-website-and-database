@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Рецепты - VIVA PHARMACY</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="mypx_main">
+        <h1>Рецепты, ожидающие подтверждения</h1>
+        <table>
+            <tr>
+                <th>ID Рецепта</th>
+                <th>ID Клиента</th>
+                <th>ФИО, дата рождения</th>
+                <th>Препарат</th>
+                <th>Количество</th>
+                <th>Срок действия</th>
+                <th>Статус</th>
+            </tr>
+            <!--кнопка approveallpx-->
+            {% for px in prescriptions %}
+            <tr>
+                <td>{{ px[0] }}</td>
+                <td>{{ px[1] }}</td>
+                <td>{{ px[6] }}</td>
+                <td>{{ px[4] }}</td>
+                <td>{{ px[5] }}</td>
+                <td>{{ px[3] }}</td>
+                <td>{{ px[2] }}</td>
+                <td>
+                    <form action="{{ url_for('approve_px', px_id=px[0]) }}" method="post">
+                        <button type="submit">Подтвердить</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        <a href="{{ url_for('profile') }}"><button class="pxfrom_back">Назад</button></a>
+    </div>
+</body>
+</html>

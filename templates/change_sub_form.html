@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Изменение вещества - VIVA PHARMACY</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="pxform_main">
+        <h1>Изменение вещества: {{ sub[0] }}</h1>
+        <form action="{{ url_for('change_sub', name=sub[0]) }}" method="post">
+            <label for="sub_active">Активность:</label>
+            <select id="sub_active" name="sub_active" required>
+                <option value="true" {% if sub[1] %}selected{% endif %}>Активно</option>
+                <option value="false" {% if not sub[1] %}selected{% endif %}>Неактивно</option>
+            </select>
+
+            <label for="sub_description">Описание:</label>
+            <textarea id="sub_description" name="sub_description" rows="4" cols="50" required>{{ sub[2] }}</textarea>
+
+            <button type="submit" class="pxform_back">Сохранить изменения</button>
+        </form>
+        <a href="{{ url_for('activesubs') }}"><button class="pxfrom_back">Назад</button></a>
+    </div>
+</body>
+</html>

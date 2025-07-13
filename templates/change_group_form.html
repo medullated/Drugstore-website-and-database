@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Изменение группы - VIVA PHARMACY</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="pxform_main">
+        <h1>Изменение группы: {{ g[0] }}</h1>
+        <form action="{{ url_for('change_group', name=g[0]) }}" method="post">
+            <label for="g_description">Описание:</label>
+            <textarea id="g_description" name="g_description" rows="4" cols="50" required>{{ g[1] }}</textarea>
+
+            <button type="submit" class="pxform_back">Сохранить изменения</button>
+        </form>
+        <a href="{{ url_for('farmgroups') }}"><button class="pxfrom_back">Назад</button></a>
+    </div>
+</body>
+</html>

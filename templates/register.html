@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Регистрация - VIVA PHARMACY</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="log_main">
+        <div class="log_container">
+            <div><a href="/"><img src="{{ url_for('static', filename='logo_t.svg') }}" alt="Логотип" class="log_logo"></a></div>
+            
+            <div><form action="{{ url_for('register') }}" method="post" class="login_form" onsubmit="return validateForm()">
+                <div><label for="reg_username"></label>
+                <input type="text" id="username" name="username" placeholder="Логин" required 
+                       oninput="validateLogin(this)" maxlength="24"></div>
+                
+                <div><label for="password"></label>
+                <input type="password" id="password" name="password" placeholder="Пароль" required 
+                       oninput="validatePassword(this)" maxlength="24"></div>
+                
+                <div><label for="reg_name"></label>
+                <input type="text" id="reg_name" name="reg_name" placeholder="Имя" required 
+                       oninput="validateName(this)" maxlength="24"></div>
+                
+                <div><label for="reg_surname"></label>
+                <input type="text" id="reg_surname" name="reg_surname" placeholder="Фамилия" required 
+                       oninput="validateName(this)" maxlength="24"></div>
+                
+                <div><label for="reg_patronymic"></label>
+                <input type="text" id="reg_patronymic" name="reg_patronymic" placeholder="Отчество (при наличии)"
+                       oninput="validateName(this)" maxlength="24"></div>
+                
+                <div><label>Дата рождения</label></div>
+                <input type="date" id="reg_bdate" name="reg_bdate" required 
+                       max="{{ today }}" onchange="validateBirthDate()">
+                
+                <button type="submit" class="reg_button">Зарегистрироваться</button>
+            </form></div>
+        </div>
+    </div>
+
+    <script>
+        // Устанавливаем максимальную дату (сегодня) для поля даты рождения
+        document.getElementById('reg_bdate').max = new Date().toISOString().split('T')[0];
+        
+        // Валидация имени, фамилии, отчества (только русские буквы, первая заглавная)
+        function validateName(input) {
+            // Удаляем всё, кроме русских букв
+            input.value = input.value.replace(/[^a-zA-Zа-яА-ЯёЁ]/g, '');
+            
+            // Делаем первую букву заглавной, остальные - строчными
+            if (input.value.length > 0) {
+                input.value = input.value[0].toUpperCase() + input.value.slice(1).toLowerCase();
+            }
+        }
+        
+        // Валидация логина (латинские буквы и цифры)
+        function validateLogin(input) {
+            input.value = input.value.replace(/[^a-zA-Z0-9]/g, '');
+        }
+        
+        // Валидация пароля (латинские буквы и цифры)
+        function validatePassword(input) {
+            input.value = input.value.replace(/[^a-zA-Z0-9]/g, '');
+        }
+        
+        // Проверка даты рождения (минимум 18 лет)
+        function validateBirthDate() {
+            const birthDate = new Date(document.getElementById('reg_bdate').value);
+            if (!birthDate) return true;
+            
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            
+            if (age < 18) {
+                alert('Для регистрации вам должно быть не менее 18 лет');
+                document.getElementById('reg_bdate').value = '';
+                return false;
+            }
+            return true;
+        }
+        
+        // Общая проверка формы перед отправкой
+        function validateForm() {
+            // Проверка длины пароля
+            const password = document.getElementById('password').value;
+            if (password.length > 24) {
+                alert('Пароль не должен превышать 24 символа');
+                return false;
+            }
+            
+            // Проверка возраста
+            return validateBirthDate();
+        }
+    </script>
+</body>
+</html>

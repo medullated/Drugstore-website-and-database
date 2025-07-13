@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Добавить рецепт</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        .error-message {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="pxform_main">
+        <h2>Добавление рецепта</h2>
+        <form action="{{ url_for('add_prescription') }}" method="post" onsubmit="return validateQuantity()">
+            <label for="drug_name">Название препарата:</label>
+            <input type="text" id="drug_name" name="drug_name" required>
+
+            <label for="expiry_date">Срок действия:</label>
+            <input type="date" id="expiry_date" name="expiry_date" required>
+
+            <label for="drug_quantity">Количество:</label>
+            <input type="number" id="drug_quantity" name="drug_quantity" min="1" max="100" required
+                   oninput="validateQuantityInput()">
+            <div id="quantityError" class="error-message">Введите число от 1 до 100</div>
+
+            <button type="submit">Добавить</button>
+        </form>
+        <a href="{{ url_for('profile') }}"><button class="pxfrom_back">Назад</button></a>
+    </div>
+
+    <script>
+        function validateQuantityInput() {
+            const quantityInput = document.getElementById('drug_quantity');
+            const errorElement = document.getElementById('quantityError');
+            const value = parseInt(quantityInput.value);
+            
+            if (isNaN(value) || value < 1 || value > 100) {
+                errorElement.style.display = 'block';
+                return false;
+            } else {
+                errorElement.style.display = 'none';
+                return true;
+            }
+        }
+
+        function validateQuantity() {
+            const isValid = validateQuantityInput();
+            if (!isValid) {
+                const quantityInput = document.getElementById('drug_quantity');
+                quantityInput.focus();
+                return false;
+            }
+            return true;
+        }
+    </script>
+</body>
+</html>

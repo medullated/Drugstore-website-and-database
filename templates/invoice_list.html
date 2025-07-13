@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Просмотр накладной - VIVA PHARMACY</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        .hidden {
+            display: none;
+        }
+        .error-message {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="mypx_main">
+        <h1>Накладная #{{ invoice_id }}</h1>
+
+        <!-- Поле для поиска препаратов в накладной -->
+        <div class="search-form">
+            <input type="text" id="searchInput" placeholder="Поиск по названию препарата" onkeyup="searchDrugsInInvoice()">
+        </div>
+
+        <table id="invoiceDrugsTable">
+            <tr>
+                <th>Название препарата</th>
+                <th>Количество</th>
+                <th>Действия</th>
+            </tr>
+            {% for drug in drugs_in_invoice %}
+            <tr class="drug-row">
+                <td class="drug-name">{{ drug[0] }}</td>
+                <td>{{ drug[1] }}</td>
+                <td>
+                    {% if not status %}
+                    <form action="{{ url_for('delete_drug_from_invoice', invoice_id=invoice_id, drug_id=drug[2]) }}" method="post">
+                        <button type="submit">Удалить</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        {% if not status %}
+        <div style="margin-top: 20px;" class="add_drug_container">
+            <form action="{{ url_for('add_drug_to_invoice', invoice_id=invoice_id) }}" method="post" onsubmit="return validateAmount()">
+                <div>
+                    <input type="text" id="drugSearch" placeholder="Поиск препарата..." 
+                           onkeyup="filterDrugs()" style ="margin-bottom: 10px;">
+                    <select name="drug_id" id="drugSelect" size="2" style="width: 300px; padding: 8px; display: block;">
+                        {% for drug in all_drugs %}
+                        <option value="{{ drug[0] }}">{{ drug[1] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <input type="number" name="amount" id="amountInput" placeholder="Количество" required style="margin-top: 10px;" 
+                           min="1" max="1000" oninput="validateAmountInput()">
+                    <div id="amountError" class="error-message">Введите число от 1 до 1000</div>
+                </div>
+                <button type="submit" style="margin-top: 10px;" class="pxfrom_back">Добавить препарат</button>
+            </form>
+        </div>
+        {% endif %}
+
+        <a href="{{ url_for('control_invoice') }}"><button class="pxfrom_back">Назад</button></a>
+    </div>
+
+    <script>
+        function searchDrugsInInvoice() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toUpperCase();
+            const rows = document.getElementsByClassName('drug-row');
+            
+            for (let i = 0; i < rows.length; i++) {
+                const nameCell = rows[i].getElementsByClassName('drug-name')[0];
+                const txtValue = nameCell.textContent || nameCell.innerText;
+                
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
+        }
+        
+        function filterDrugs() {
+            const input = document.getElementById('drugSearch');
+            const filter = input.value.toUpperCase();
+            const select = document.getElementById('drugSelect');
+            const options = select.getElementsByTagName('option');
+            
+            for (let i = 0; i < options.length; i++) {
+                const text = options[i].textContent || options[i].innerText;
+                if (text.toUpperCase().indexOf(filter) > -1) {
+                    options[i].style.display = "";
+                } else {
+                    options[i].style.display = "none";
+                }
+            }
+        }
+        
+        function validateAmountInput() {
+            const amountInput = document.getElementById('amountInput');
+            const errorElement = document.getElementById('amountError');
+            const value = parseInt(amountInput.value);
+            
+            if (isNaN(value) || value < 1 || value > 1000) {
+                errorElement.style.display = 'block';
+                return false;
+            } else {
+                errorElement.style.display = 'none';
+                return true;
+            }
+        }
+        
+        function validateAmount() {
+            const isValid = validateAmountInput();
+            if (!isValid) {
+                const amountInput = document.getElementById('amountInput');
+                amountInput.focus();
+            }
+            return isValid;
+        }
+    </script>
+</body>
+</html>

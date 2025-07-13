@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Права доступа - VIVA PHARMACY</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="mypx_main">
+        <h1>Управление правами доступа</h1>
+
+        <!-- Поле для поиска прав доступа -->
+        <div class="search-form">
+            <input type="text" id="searchInput" placeholder="Поиск по описанию права" onkeyup="searchRights()">
+        </div>
+
+        <!-- Форма добавления нового права -->
+        <form action="{{ url_for('add_access_right') }}" method="post">
+            <input type="text" name="description" placeholder="Описание права" required>
+            <button type="submit">Добавить</button>
+        </form>
+
+        <a href="{{ url_for('adminprofile') }}"><button class="pxfrom_back">Назад</button></a>
+
+        <table id="rightsTable">
+            <tr>
+                <th>Право</th>
+                <th>Действия</th>
+            </tr>
+            {% for right in access_rights %}
+            <tr class="right-row">
+                <td class="right-description">{{ right[1] }}</td>
+                <td>
+                    <form action="{{ url_for('delete_access_right', id=right[0]) }}" method="post">
+                        <button type="submit">Удалить</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <script>
+        function searchRights() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toUpperCase();
+            const rows = document.getElementsByClassName('right-row');
+            
+            for (let i = 0; i < rows.length; i++) {
+                const descCell = rows[i].getElementsByClassName('right-description')[0];
+                const txtValue = descCell.textContent || descCell.innerText;
+                
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Активные вещества - VIVA PHARMACY</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        .hidden {
+            display: none;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="mypx_main">
+        <h1>Управление активными веществами</h1>
+        
+        <!-- Поле для поиска с JavaScript -->
+        <div class="search-form">
+            <input type="text" id="searchInput" placeholder="Поиск по названию..." onkeyup="searchSubstances()">
+        </div>
+        
+        <form action="{{ url_for('add_sub') }}" method="post">
+            <input type="text" id="sub_name" name="sub_name" placeholder="Название вещества" required>
+            
+            <select id="sub_status" name="sub_status" required>
+                <option value="" disabled selected>Выберите активность</option>
+                <option value="true">Активно</option>
+                <option value="false">Неактивно</option>
+            </select>
+            
+            <input type="text" id="sub_desc" name="sub_desc" placeholder="Описание" required>
+            <button type="submit">Добавить</button>  
+        </form>
+        
+        <a href="{{ url_for('profile') }}"><button class="pxfrom_back">Назад</button></a>
+        
+        <table id="substancesTable">
+            <tr>
+                <th>Вещество</th>
+                <th>Активность</th>
+                <th>Описание</th>
+                <th colspan="2">Действия</th>
+            </tr>
+            {% for sub in subs %}
+            <tr class="substance-row">
+                <td class="substance-name">{{ sub[0] }}</td>
+                <td>{{ "Активно" if sub[1] == true or sub[1]|string == "True" or sub[1]|string == "true" else "Неактивно" }}</td>
+                <td>{{ sub[2] }}</td>
+                <td>
+                    <form action="{{ url_for('show_change_sub_form', name=sub[0]) }}" method="get">
+                        <button type="submit">Изменить</button>
+                    </form>
+                </td>
+                <td>
+                    <form action="{{ url_for('delete_sub', name=sub[0]) }}" method="post">
+                        <button type="submit">Удалить</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <script>
+        function searchSubstances() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toUpperCase();
+            const rows = document.getElementsByClassName('substance-row');
+            
+            for (let i = 0; i < rows.length; i++) {
+                const nameCell = rows[i].getElementsByClassName('substance-name')[0];
+                const txtValue = nameCell.textContent || nameCell.innerText;
+                
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
+        }
+    </script>
+</body>
+</html>

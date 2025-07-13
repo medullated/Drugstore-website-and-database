@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Мои заказы - VIVA PHARMACY</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        .controls {
+            margin: 20px 0;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .search-input {
+            padding: 8px 15px;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            font-family: inherit;
+        }
+        .sort-btn {
+            padding: 8px 15px;
+            background-color: #4a6fa5;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .sort-btn:hover {
+            background-color: #3a5a8c;
+        }
+        .sort-icon {
+            font-size: 18px;
+        }
+
+        th {
+            cursor: pointer;
+            position: relative;
+            border-radius: 20px;
+            color: #ED4C4C;
+        }
+        th:hover {
+            background-color: #f5f5f5;
+        }
+        th.sorted-asc::after {
+            content: "↑";
+            margin-left: 5px;
+        }
+        th.sorted-desc::after {
+            content: "↓";
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="mypx_main">
+        <h1>Мои заказы</h1>
+        
+        <!-- Панель управления -->
+        <div class="controls">
+            <input type="text" id="searchInput" class="search-input" placeholder="Поиск по названию препаратов..." onkeyup="searchTable()">
+        </div>
+        
+        <table id="ordersTable">
+            <thead>
+                <tr>
+                    <th onclick="sortTable(0, 'number')">ID чека</th>
+                    <th onclick="sortTable(1, 'date')">Дата и время</th>
+                    <th onclick="sortTable(2, 'string')">Статус</th>
+                    <th onclick="sortTable(3, 'number')">Сумма</th>
+                    <th>Препараты</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bill in bills %}
+                <tr>
+                    <td data-sort="{{ bill[0] }}">{{ bill[0] }}</td>
+                    <td data-sort="{{ bill[1].timestamp() if bill[1] else 0 }}">{{ bill[1] }}</td>
+                    <td>{{ bill[2] }}</td>
+                    <td data-sort="{{ bill[3] }}">{{ bill[3] }}</td>
+                    <td>{{ bill[4] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="{{ url_for('profile') }}"><button class="pxfrom_back">Назад</button></a>
+    </div>
+
+    <script>
+        let lastSortedColumn = -1;
+        let sortDirection = 1; // 1 - по возрастанию, -1 - по убыванию
+        
+        // Функция поиска по названиям препаратов
+        function searchTable() {
+            const input = document.getElementById("searchInput");
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById("ordersTable");
+            const tr = table.getElementsByTagName("tr");
+            
+            for (let i = 1; i < tr.length; i++) {
+                const drugsCell = tr[i].getElementsByTagName("td")[4]; // Колонка с препаратами
+                if (drugsCell) {
+                    const txtValue = drugsCell.textContent || drugsCell.innerText;
+                    if (txtValue.toLowerCase().includes(filter)) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+        
+        // Универсальная функция сортировки
+        function sortTable(columnIndex, dataType) {
+            const table = document.getElementById("ordersTable");
+            const tbody = table.querySelector("tbody");
+            const rows = Array.from(tbody.querySelectorAll("tr"));
+            const headers = table.querySelectorAll("th");
+            
+            // Сбрасываем классы сортировки у всех заголовков
+            headers.forEach(header => {
+                header.classList.remove("sorted-asc", "sorted-desc");
+            });
+            
+            // Если сортируем ту же колонку, меняем направление
+            if (lastSortedColumn === columnIndex) {
+                sortDirection *= -1;
+            } else {
+                sortDirection = 1;
+                lastSortedColumn = columnIndex;
+            }
+            
+            // Добавляем класс сортировки к текущему заголовку
+            headers[columnIndex].classList.add(sortDirection === 1 ? "sorted-asc" : "sorted-desc");
+            
+            rows.sort((a, b) => {
+                const cellA = a.querySelectorAll("td")[columnIndex];
+                const cellB = b.querySelectorAll("td")[columnIndex];
+                
+                let valueA, valueB;
+                
+                // Получаем значения для сортировки в зависимости от типа данных
+                if (dataType === 'date') {
+                    valueA = new Date(cellA.getAttribute("data-sort") * 1000);
+                    valueB = new Date(cellB.getAttribute("data-sort") * 1000);
+                } else {
+                    valueA = dataType === 'number' 
+                        ? parseFloat(cellA.getAttribute("data-sort") || 0) 
+                        : (cellA.textContent || cellA.innerText).toLowerCase();
+                    valueB = dataType === 'number' 
+                        ? parseFloat(cellB.getAttribute("data-sort") || 0) 
+                        : (cellB.textContent || cellB.innerText).toLowerCase();
+                }
+                
+                if (valueA < valueB) return -1 * sortDirection;
+                if (valueA > valueB) return 1 * sortDirection;
+                return 0;
+            });
+            
+            // Очищаем и перезаполняем tbody
+            while (tbody.firstChild) {
+                tbody.removeChild(tbody.firstChild);
+            }
+            
+            rows.forEach(row => {
+                tbody.appendChild(row);
+            });
+        }
+    </script>
+</body>
+</html>

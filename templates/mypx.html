@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Мои рецепты - VIVA PHARMACY</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        .search-container {
+            margin: 10px 0;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-direction: row;
+        }
+        .search-input {
+            padding: 8px;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            font-family: inherit;
+            text-align: center;
+        }
+        .search-container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            
+            
+        }
+        .sort-icon {
+            font-size: 10px;
+            padding: 0;
+        }
+        .sort-btn {
+            height: 35px;
+            text-align: center;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="mypx_main">
+        <h1>Мои рецепты</h1>
+        
+        <!-- Добавляем поле поиска и кнопку сортировки -->
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-input" placeholder="Поиск по названию..." onkeyup="searchTable()">
+            <button id="sortButton" class="sort-btn" onclick="sortTableByDate()">
+                <span class="material-icons sort-icon">sort</span>
+                Сортировать по дате
+            </button>
+        </div>
+        
+        <table id="prescriptionsTable">
+            <thead>
+                <tr>
+                    <th>Название</th>
+                    <th>Срок действия</th>
+                    <th>Количество</th>
+                    <th>Статус</th>
+                    <th>Действие</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for px in prescriptions %}
+                <tr>
+                    <td>{{ px[1] }}</td>
+                    <td data-date="{{ px[2] }}">{{ px[2] }}</td>
+                    <td>{{ px[3] }}</td>
+                    <td>{% if px[4] %}Подтвержден{% else %}Не подтвержден{% endif %}</td>
+                    <td>
+                        <form action="{{ url_for('delete_prescription', px_id=px[0]) }}" method="post">
+                            <button type="submit">Удалить</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="{{ url_for('profile') }}"><button class="pxfrom_back">Назад</button></a>
+    </div>
+
+    <script>
+        let sortDirection = 1; // 1 - по возрастанию, -1 - по убыванию
+        
+        function searchTable() {
+            const input = document.getElementById("searchInput");
+            const filter = input.value.toUpperCase();
+            const table = document.getElementById("prescriptionsTable");
+            const tr = table.getElementsByTagName("tr");
+            
+            for (let i = 1; i < tr.length; i++) {
+                const td = tr[i].getElementsByTagName("td")[0];
+                if (td) {
+                    const txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+        
+        function sortTableByDate() {
+            const table = document.getElementById("prescriptionsTable");
+            const tbody = table.querySelector("tbody");
+            const rows = Array.from(tbody.querySelectorAll("tr"));
+            
+            // Меняем направление сортировки при каждом клике
+            sortDirection *= -1;
+            const sortIcon = document.querySelector(".sort-icon");
+            sortIcon.textContent = sortDirection === 1 ? "arrow_upward" : "arrow_downward";
+            
+            rows.sort((a, b) => {
+                const dateA = new Date(a.querySelector("td[data-date]").getAttribute("data-date"));
+                const dateB = new Date(b.querySelector("td[data-date]").getAttribute("data-date"));
+                return (dateA - dateB) * sortDirection;
+            });
+            
+            // Очищаем и перезаполняем tbody
+            while (tbody.firstChild) {
+                tbody.removeChild(tbody.firstChild);
+            }
+            
+            rows.forEach(row => {
+                tbody.appendChild(row);
+            });
+        }
+    </script>
+</body>
+</html>

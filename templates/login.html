@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Вход - VIVA PHARMACY</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="log_main">
+        <div class="log_container">
+            <div><a href="/"><img src="{{ url_for('static', filename='logo_t.svg') }}" alt="Логотип" class="log_logo"></a></div>
+            
+            <div><form action="{{ url_for('login') }}" method="post" class="login_form">
+                <div><label for="username"></label>
+                <input type="text" id="username" name="username" placeholder="Логин" required 
+                       oninput="validateLatinAndNumbers(this)"></div>
+
+                <div><label for="password"></label>
+                <input type="password" id="password" name="password" placeholder="Пароль" required 
+                       oninput="validateLatinAndNumbers(this)"></div>
+
+                <div class="checkbox_container">
+                    <input type="checkbox" id="employee" name="employee">
+                    <label for="employee">Я являюсь сотрудником</label>
+                </div>
+
+                <button type="submit" class="login_button">Войти</button>
+            </form></div>
+        </div>
+    </div>
+
+    <script>
+        // Валидация для латинских букв и цифр
+        function validateLatinAndNumbers(input) {
+            // Удаляем все символы, кроме латинских букв и цифр
+            input.value = input.value.replace(/[^a-zA-Z0-9]/g, '');
+        }
+    </script>
+</body>
+</html>

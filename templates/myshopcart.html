@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Моя корзина - VIVA PHARMACY</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            flex-direction: column;
+            gap: 0px;
+        }
+        .quantity-input {
+            width: 50px;
+            text-align: center;
+            padding: 5px;
+            border: 1px solid #ccc;
+            font-family: inherit;
+        }
+        .quantity-error {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+        .actions-column {
+            display: flex;
+            flex-direction: column;
+            gap: 0px;
+        }
+        #drugsTable td, #drugsTable th {
+            text-align: center;
+            align-items: center;
+            justify-items: center;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="mypx_main">
+        <h1>Моя корзина</h1>
+
+        {% if bill_info %}
+        <div>
+            <h2>Информация о чеке</h2>
+            <table>
+                <tr>
+                    <th>ID Чека</th>
+                    <th>Дата и время</th>
+                    <th>Статус</th>
+                    <th>Сумма</th>
+                </tr>
+                <tr>
+                    <td>{{ bill_info.bill_id }}</td>
+                    <td>{{ bill_info.date_time }}</td>
+                    <td>{{ bill_info.status }}</td>
+                    <td id="totalAmount">{{ bill_info.bill_amount }}</td>
+                </tr>
+            </table>
+        </div>
+        {% else %}
+        <p>Корзина пуста.</p>
+        {% endif %}
+
+        {% if drugs %}
+        <div>
+            <h2>Препараты в корзине</h2>
+            <table id="drugsTable">
+                <thead>
+                    <tr>
+                        <th>Препарат</th>
+                        <th>Цена за единицу</th>
+                        <th>Количество</th>
+                        <th>Сумма</th>
+                        <th>Рецепт</th>
+                        <th>Действие</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for drug in drugs %}
+                    <tr data-drug-id="{{ drug.drug_id }}" data-unit-price="{{ drug.drug_price }}">
+                        <td>{{ drug.drug_name }}</td>
+                        <td class="unit-price">{{ drug.drug_price }}</td>
+                        <td>
+                            <div class="quantity-control">
+                                <input type="number" class="quantity-input" value="{{ drug.quantity }}" min="1" max="10"
+                                       onchange="updateQuantityInDB(this)">
+                                <div class="quantity-error">Максимум 10 единиц</div>
+                            </div>
+                        </td>
+                        <td class="item-total">{{ drug.drug_price * drug.quantity }}</td>
+                        <td>{{ drug.drug_prescription }}</td>
+                        <td class="actions-column">
+                            <form action="{{ url_for('delete_from_shopcart', drug_id=drug.drug_id) }}" method="post">
+                                <button type="submit">Удалить</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <form action="{{ url_for('pay_bill', bill_id=bill_info.bill_id) }}" method="post" id="paymentForm">
+            <input type="hidden" name="total_amount" id="hiddenTotalAmount" value="{{ bill_info.bill_amount }}">
+            <button type="submit" class="pay_bill_b">Оплатить</button>
+        </form>
+        {% endif %}
+
+        <a href="{{ url_for('profile') }}"><button class="pxfrom_back">Профиль</button></a>
+        <a href="{{ url_for('index') }}"><button class="pxfrom_back">Главная</button></a>
+    </div>
+
+    <script>
+        // Обновление количества на клиенте
+        function updateQuantity(button, change) {
+            const input = button.parentElement.querySelector('.quantity-input');
+            let newValue = parseInt(input.value) + change;
+            if (newValue < 1) newValue = 1;
+            if (newValue > 10) newValue = 10;
+            input.value = newValue;
+            updateTotal(input);
+        }
+
+        // Обновление суммы для строки
+        function updateTotal(input) {
+            const row = input.closest('tr');
+            const unitPrice = parseFloat(row.dataset.unitPrice);
+            const quantity = parseInt(input.value);
+            const itemTotal = unitPrice * quantity;
+            
+            row.querySelector('.item-total').textContent = itemTotal.toFixed(2);
+            updateGrandTotal();
+        }
+
+        // Пересчет общей суммы чека
+        function updateGrandTotal() {
+            let grandTotal = 0;
+            document.querySelectorAll('#drugsTable tr[data-drug-id]').forEach(row => {
+                grandTotal += parseFloat(row.querySelector('.item-total').textContent);
+            });
+            
+            document.getElementById('totalAmount').textContent = grandTotal.toFixed(2);
+            document.getElementById('hiddenTotalAmount').value = grandTotal.toFixed(2);
+        }
+
+        // Отправка нового количества на сервер с использованием вашей функции БД
+        async function updateQuantityInDB(input) {
+            const row = input.closest('tr');
+            const drugId = row.dataset.drugId;
+            let newQuantity = parseInt(input.value);
+            const errorElement = row.querySelector('.quantity-error');
+            
+            // Валидация
+            if (isNaN(newQuantity)) newQuantity = 1;
+            if (newQuantity < 1) newQuantity = 1;
+            if (newQuantity > 10) {
+                errorElement.style.display = 'block';
+                newQuantity = 10;
+            } else {
+                errorElement.style.display = 'none';
+            }
+            
+            try {
+                const response = await fetch('/update_cart_quantity', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        drug_id: parseInt(drugId),
+                        quantity: newQuantity
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (!response.ok || !result.success) {
+                    throw new Error(result.error || 'Ошибка сервера');
+                }
+                
+                // Обновляем UI только после успешного ответа
+                input.value = result.new_quantity;
+                row.querySelector('.item-total').textContent = result.item_total.toFixed(2);
+                updateGrandTotal();
+                
+            } catch (error) {
+                console.error('Ошибка:', error);
+                // Восстанавливаем предыдущее значение
+                const current = await fetchCurrentQuantity(drugId);
+                input.value = current.quantity;
+                updateTotal(input);
+                alert('Не удалось обновить количество: ' + error.message);
+            }
+        }
+
+        // Функция для получения текущего количества с сервера
+        async function fetchCurrentQuantity(drugId) {
+            try {
+                const response = await fetch(`/get_drug_quantity?drug_id=${drugId}`);
+                if (!response.ok) throw new Error('Ошибка сети');
+                
+                const data = await response.json();
+                if (!data.success) throw new Error(data.error || 'Ошибка сервера');
+                
+                return data;
+            } catch (error) {
+                console.error('Ошибка получения количества:', error);
+                return { quantity: 1 }; // Значение по умолчанию
+            }
+        }
+    </script>
+</body>
+</html>

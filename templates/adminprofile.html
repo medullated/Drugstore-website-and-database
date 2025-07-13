@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Личный кабинет администратора сайта - VIVA PHARMACY</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="profile_main">
+        <h1>Добро пожаловать, {{ username }}!</h1>
+        <div class="profile_buttons">
+            <a href="{{ url_for('employees') }}"><button class="emp_b">Управление сотрудниками</button></a>
+            <a href="{{ url_for('control_rights') }}"><button class="control_rights_b">Управление правами доступа</button></a>
+            <a href="{{ url_for('control_invoice') }}"><button class="control_invoice_b">Управление накладными</button></a>
+            <a href="{{ url_for('backup_management') }}"><button class="control_invoice_b">Резервное копирование и восстановление</button></a>
+            <a href="{{ url_for('index') }}"><button>Главная</button></a>
+        </div>
+    </div>
+</body>
+</html>
